@@ -24,14 +24,9 @@ request_loop = None
 schema = {
     'orion_failed_unknown_error': 0,
     'orion_failed_wrong_target': 0,
-    'orion_failed_request_token_connection_error': 0,
-    'orion_failed_request_token_connection_timeout': 0,
-    'orion_failed_request_token_response_code': 0,
     'orion_failed_check_instance_connection_error': 0,
     'orion_failed_check_instance_connection_timeout': 0,
     'orion_failed_check_instance_response_code': 0,
-    'orion_request_token': 0,
-    'orion_check_entities': 0,
     'orion_check_instance': 0
 }
 
@@ -72,6 +67,10 @@ async def get_handler(request):
 
     # request token:
     if 'auth' in config[target]:
+        reply['orion_failed_request_token_connection_error'] = 0
+        reply['orion_failed_request_token_connection_timeout'] = 0
+        reply['orion_failed_request_token_response_code'] = 0
+
         async with ClientSession() as session:
             status = -1
             url = config[target]['auth']['tokenprovider']

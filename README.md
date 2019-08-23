@@ -28,31 +28,33 @@ $ curl http://localhost:8000/ping
 
 ## How to configure
 Sample config is located [here](./config-example.json).
-If entities are defined, you should provide at least an 'ID' (the exporter will use this 'ID' to export metrics). 
-Make sure that the 'ID' doesn't contain dashes.
+If entities are defined, you should provide at least an `id` (the exporter will use this `id` to export metrics). 
+Make sure that the `id` doesn't contain dashes.
 
 
 ## Explanation of logic
-Orion's state is checked by sending a request to 'orion:1026/version'. 
-It requests and refreshes the access token from Keyrock (if 'auth' is defined in the config).
-It returns 0 as 'check_success' if Orion or Keyrock returns other status codes than 200 or 201.
-If entities are defined, it sends a request with the parameter '?limit=1' to each entity. If the request returns an empty list, the metric 'check_entities' will be 0,
-but the metric 'check_success' will be 1. 
-You can determine a specific entity by its 'id' or 'type', an 'id' has a higher priority than 'type'. 
-You can also define 'FIWARE-SERVICE' and 'FIWARE-SERVICEPATH'.
+Orion's state is checked by sending a request to `orion:1026/version`. 
+It requests and refreshes the access token from Keyrock (if `auth` is defined in the config).
+It returns 0 as `check_success` if Orion or Keyrock returns other status codes than 200 or 201.
+If entities are defined, it sends a request with the parameter `limit=` to each entity. If the request returns an empty list, the metric `check_entities` will be 0,
+but the metric `check_success` will be 1. 
+You can determine a specific entity by its `id` or `type`, an `id` has a higher priority than `type`. 
+You can also define `FIWARE-SERVICE` and `FIWARE-SERVICEPATH`.
 
 
 ## Example of query
-+ curl orionexporter:8000/probe?target=https://wilma.example.com
+```console
+curl orionexporter:8000/probe?target=https://wilma.example.com
+```
 
 
 ## List of endpoints
 + /probe - endpoint to communicate with Prometheus
-+ /ping - returns 'pong'
-+ /version - returns 'version' and 'commit
++ /ping - returns `pong`
++ /version - returns `build` and `commit`
 
 
-#### Prometheus config (for this [config](./config-example.json))
+#### Prometheus config (for this [example](./config-example.json))
 ```console
   - job_name: 'orions'
     scrape_interval: 10m

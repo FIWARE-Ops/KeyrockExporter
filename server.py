@@ -43,19 +43,19 @@ def request_token(target, sel):
                    'password': data[target]['password']}
     elif sel == 'refresh':
         payload = {'grant_type': 'refresh_token',
-                   'token': data[target]['refresh_token']}
+                   'refresh_token': data[target]['refresh_token']}
 
     try:
         resp = requests.post(url, auth=auth, data=payload, headers=headers, timeout=5)
     except requests.exceptions.ConnectionError:
-        return False, "orion_failed_request_token_connection_timeout"
+        return False, "orion_failed_" + sel + "_token_connection_timeout"
 
     if resp.status_code == 200:
         reply = jsn.loads(resp.text)
         data[target]['access_token'] = reply['access_token']
         data[target]['refresh_token'] = reply['refresh_token']
         return True, None
-    return False, "orion_failed_request_token_response_code"
+    return False, "orion_failed_" + sel + "_token_response_code"
 
 
 def validate_token(target):

@@ -91,7 +91,7 @@ async def get_handler(request):
                 return web.Response(text=prepare_output(reply))
             except Exception as exception:
                 reply['orion_failed_unknown_error'] = 1
-                logging.error('request_token, %s, %s, %s', status, text, exception)
+                error('request_token, %s, %s, %s', status, text, exception)
                 return web.Response(text=prepare_output(reply))
 
             if response.status != 200:
@@ -120,7 +120,7 @@ async def get_handler(request):
             return web.Response(text=prepare_output(reply))
         except Exception as exception:
             reply['orion_failed_unknown_error'] = 1
-            logging.error('request_token, %s, %s, %s', status, text, exception)
+            error('request_token, %s, %s, %s', status, text, exception)
             return web.Response(text=prepare_output(reply))
 
         if status != 200:
@@ -158,13 +158,16 @@ async def get_handler(request):
             if item[1] != 200:
                 reply['orion_check_entities'] = 0
 
-    reply = dumps(dict(sorted(reply.items(), key = lambda k: (k[0], k[1]))), indent=0)
-    return web.Response(text=reply[reply.find('\n') + 1:reply.rfind('\n')])
+    return web.Response(text=prepare_output(reply))
 
 
 def prepare_output(reply):
-    reply = dumps(dict(sorted(reply.items(), key = lambda k: (k[0], k[1]))), indent=0)
-    return reply[reply.find('\n') + 1:reply.rfind('\n')]
+    reply = dict(sorted(reply.items(), key = lambda k: (k[0], k[1])))
+    out = ''
+    for item in reply:
+        out = out + item + ' ' + str(reply[item]) + '\n'
+
+    return out
 
 
 async def fetch(session, item):

@@ -9,6 +9,6 @@ RUN apk add --no-cache --update python3 \
 
 WORKDIR /opt
 
-CMD ["/usr/bin/python3", "-u", "/opt/server.py"]
+ENTRYPOINT ["/usr/bin/python3", "-u", "/opt/server.py"]
 
 EXPOSE 8000

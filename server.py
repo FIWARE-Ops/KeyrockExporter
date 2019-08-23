@@ -161,6 +161,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             log['date'] = datetime.datetime.now().isoformat()
             if cmd:
                 log['cmd'] = cmd
+            if reply:
+                log['reply'] = reply
             print(jsn.dumps(log, indent=2))
         return
 

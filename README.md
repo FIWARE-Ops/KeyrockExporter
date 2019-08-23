@@ -13,13 +13,15 @@ It works as a service and allows to check several entities as well.
 
 ## How to run
 ```console
-$ docker run -d fiware/service.orionexporter \
+$ docker run -it --rm \
+             -p 0.0.0.0:${PORT}:${PORT} \
+             fiware/service.orionexporter \
              --ip ${IP} \
              --port ${PORT} \
              --config ${PATH_TO_CONFIG}
 ```
 ```console
-$ curl http://localhost:8000/ping
+$ curl http://localhost:${PORT}/ping
 ```
 
 ## How to configure
@@ -30,7 +32,7 @@ If entities are defined, you should provide at least an `id` (the exporter will 
 
 ## Example of query
 ```console
-curl orionexporter:8000/probe?target=https://wilma.example.com
+curl orionexporter:${PORT}/probe?target=https://wilma.example.com
 ```
 
 ## List of endpoints
@@ -55,7 +57,7 @@ curl orionexporter:8000/probe?target=https://wilma.example.com
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: orionexporter:8000
+        replacement: orionexporter:${PORT}
 ```
 
 

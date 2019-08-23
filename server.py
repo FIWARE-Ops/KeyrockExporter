@@ -174,9 +174,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         if cmd == 'ping':
             message = {'message': 'Pong'}
+            self.reply(message, cmd=cmd)
+            return
 
         if cmd == 'version':
             message = {'message': version}
+            self.reply(message, cmd=cmd)
+            return
 
         if cmd == 'probe' and 'target' in param:
             target = hash(param['target']) % ((sys.maxsize + 1) * 2)

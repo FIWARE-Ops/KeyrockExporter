@@ -47,7 +47,7 @@ def request_token(target, sel):
 
     try:
         resp = requests.post(url, auth=auth, data=payload, headers=headers, timeout=timeout_keyrock)
-    except socket.timeout:
+    except requests.exceptions.RequestException:
         return False, "orion_failed_" + sel + "_token_connection_timeout"
 
     if resp.status_code == 200:
@@ -62,7 +62,7 @@ def validate_token(target):
     url = data[target]['keyrock'] + '/user?access_token=' + data[target]['access_token']
     try:
         resp = requests.get(url, timeout=timeout_keyrock)
-    except socket.timeout:
+    except requests.exceptions.RequestException:
         return False, "orion_failed_validate_token_timeout"
 
     if resp.status_code in [200, 201]:
@@ -94,7 +94,7 @@ def check(target):
 
     try:
         resp = requests.get(url, headers=headers, timeout=data[target]['timeout'])
-    except socket.timeout:
+    except requests.exceptions.RequestException:
         return False, "orion_failed_check_version_timeout"
 
     if not resp.status_code == 200:
@@ -121,7 +121,7 @@ def check(target):
 
             try:
                 resp = requests.get(url, headers=headers, timeout=data[target]['timeout'])
-            except socket.timeout:
+            except requests.exceptions.RequestException:
                 return False, "orion_failed_check_entity_timeout"
 
             if resp.status_code == 200:

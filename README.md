@@ -7,21 +7,16 @@
 ## Overview
 This project is part of [FIWARE](https://fiware.org) OPS infrastructure.
 It provides the possibility to organize [Prometheus](https://prometheus.io/) monitoring of [Orion's](https://fiware-orion.readthedocs.io/en/master/) state. 
-Orion can be protected by [Keyrock](https://fiware-idm.readthedocs.io/en/latest/). 
+Orion can be protected by [Keyrock](https://fiware-idm.readthedocs.io/en/latest/), in this case 
+[KeyrockTokenProvider](https://github.com/FIWARE-Ops/KeyrockTokenProvider)  should be define.
 It works as a service and allows to check several entities as well.
-
-## WARNING
-This is an alpha revision.
 
 ## How to run
 ```console
 $ docker run -d fiware/service.orionexporter \
              --ip ${IP} \
              --port ${PORT} \
-             --threads ${THREADS} \
-             --socks ${SOCKS} \
-             --config ${PATH_TO_CONFIG} \
-             --token ${TOKEN}
+             --config ${PATH_TO_CONFIG}
 ```
 ```console
 $ curl http://localhost:8000/ping
@@ -29,18 +24,8 @@ $ curl http://localhost:8000/ping
 
 ## How to configure
 Sample config is located [here](./config-example.json).
-If entities are defined, you should provide at least an `id` (the exporter will use this `id` to export metrics). 
-Make sure that the `id` doesn't contain dashes. Do not forget to define `token` parameter.
-
-
-## Explanation of logic
-Orion's state is checked by sending a request to `orion:1026/version`. 
-It requests and refreshes the access token from Keyrock (if `auth` is defined in the config).
-It returns 0 as `check_success` if Orion or Keyrock returns other status codes than 200 or 201.
-If entities are defined, it sends a request with the parameter `limit=` to each entity. If the request returns an empty list, the metric `check_entities` will be 0,
-but the metric `check_success` will be 1. 
-You can determine a specific entity by its `id` or `type`, an `id` has a higher priority than `type`. 
-You can also define `FIWARE-SERVICE` and `FIWARE-SERVICEPATH`.
+If entities are defined, you should provide at least an `id` (the exporter will use this `id` to export metrics) or 
+`type`.
 
 
 ## Example of query
@@ -48,12 +33,10 @@ You can also define `FIWARE-SERVICE` and `FIWARE-SERVICEPATH`.
 curl orionexporter:8000/probe?target=https://wilma.example.com
 ```
 
-
 ## List of endpoints
 + /probe - endpoint to communicate with Prometheus
 + /ping - returns `pong`
 + /version - returns `build` and `commit`
-+ /config - returns config with current tokens 
 
 
 #### Prometheus config (for this [example](./config-example.json))
@@ -82,7 +65,7 @@ groups:
 - name: orion.rules
   rules:
   - alert: EndpointDown
-    expr: check_success == 0
+    expr: orion_check_instance == 0
     for: 3m
     labels:
       severity: "critical"
@@ -90,10 +73,10 @@ groups:
       summary: "Endpoint {{ $labels.instance }} is down"
 
   - alert: EntityDown
-    expr: check_entity == 0
+    expr: orion_check_entities == 0
     for: 3m
     labels:
       severity: "warning"
     annotations:
-      summary: "Entity not exists"
+      summary: "Some problems with entities"
 ```

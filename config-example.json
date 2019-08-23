@@ -1,42 +1,32 @@
 {
   "endpoints": [
     {
-      "target": "https://wilma.example.com",
-      "entities": [
-        {
-          "id": "TestID1",
-          "type": "test",
-          "service": "t_test",
-          "path": "/Test"
-        }
-      ],
-      "timeout": 20,
+      "target": "http://example1.com:1026"
+    },
+    {
+      "target": "https://example2.com",
+      "timeout": 2,
       "auth": {
-	    "keyrock": "https://keyrock.example.com",
-        "client_id": "",
-        "client_secret": "",
-        "username": "",
-        "password": ""
+	    "tokenprovider": "https://tools.lab.fiware.org/ktp/example2/",
+        "username": "user",
+        "password": "password",
+        "timeout": 5
       }
     },
     {
-      "target": "http://orion.example.com:1026",
+      "target": "http://example3.com:1026",
       "entities": [
         {
-          "id": "TestID2",
-          "entity": "test123"
+          "metric": "urn:money:account1",
+          "id": "urn:money:account1",
+          "timeout": 5
+        },
+        {
+          "metric": "urn:credit:creditall",
+          "type": "credit",
+          "timeout": 60
         }
       ]
-    },
-    {
-      "target": "http://wilma2.example.com:4444",
-      "auth": {
-	    "keyrock": "http://keyrock.example.com:3333",
-        "client_id": "",
-        "client_secret": "",
-        "username": "",
-        "password": ""
-      }
     }
   ]
 }

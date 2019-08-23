@@ -90,6 +90,12 @@ def parse_request_line(request_line):
                 if el.split('=')[0] in ['target', 'module']:
                     param[el.split('=')[0]] = el.split('=')[1]
 
+    if cmd in ['config']:
+        if len(request_line.split('?')) > 1:
+            for el in request_line.split('?')[1].split('&'):
+                if el.split('=')[0] in ['token']:
+                    param[el.split('=')[0]] = el.split('=')[1]
+
     if cmd in cmd_list:
         return cmd, param
 
@@ -163,6 +169,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.reply(message, code=400)
             return
 
+        if cmd == 'config':
+            if param['token'] == config_token:
+                message = config
+                self.reply(message, cmd=cmd)
+            else:
+                self.reply(config, cmd=cmd, code=401)
+            return
+
         if cmd == 'probe' and 'target' in param:
             target = hash(param['target']) % ((sys.maxsize + 1) * 2)
             if target not in config:
@@ -232,7 +246,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_header('content-type', 'text/plain')
         self.end_headers()
         if cmd not in ['probe']:
-            message = jsn.dumps(reply)
+            message = jsn.dumps(reply, indent=2)
         else:
             message = ''
             for el in sorted(reply):
@@ -294,11 +308,14 @@ if __name__ == '__main__':
                         help='request timeout (default: 30)',  action="store")
     parser.add_argument('--timeout_orion', dest='timeout_orion', default=60,
                         help='request timeout (default: 60)',  action="store")
+    parser.add_argument('--token', dest='token', default='g24245ht34AHGFA723539gfdg53235kht',
+                        help='private token for config endpoint',  action="store")
     args = parser.parse_args()
 
     timeout_keyrock = args.timeout_keyrock
     timeout_orion = args.timeout_orion
     config_path = args.config_path
+    config_token = args.token
 
     address = (args.ip, args.port)
     version_path = os.path.split(os.path.abspath(__file__))[0] + '/version'
@@ -322,7 +339,7 @@ if __name__ == '__main__':
     schema['orion_time_token'] = 0
     schema['orion_time_check'] = 0
 
-    cmd_list = ['probe', 'ping', 'version']
+    cmd_list = ['probe', 'ping', 'version', 'config']
 
     if not os.path.isfile(config_path):
         print(jsn.dumps({'message': 'Config file not found', 'code': 500, 'cmd': 'start'}, indent=2))

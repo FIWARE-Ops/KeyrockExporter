@@ -21,6 +21,7 @@ $ docker run -d fiware/service.orionexporter \
              --threads ${THREADS} \
              --socks ${SOCKS} \
              --config ${PATH_TO_CONFIG} \
+             --token ${TOKEN}
 ```
 ```console
 $ curl http://localhost:8000/ping
@@ -29,7 +30,7 @@ $ curl http://localhost:8000/ping
 ## How to configure
 Sample config is located [here](./config-example.json).
 If entities are defined, you should provide at least an `id` (the exporter will use this `id` to export metrics). 
-Make sure that the `id` doesn't contain dashes.
+Make sure that the `id` doesn't contain dashes. Do not forget to define `token` parameter.
 
 
 ## Explanation of logic
@@ -52,6 +53,7 @@ curl orionexporter:8000/probe?target=https://wilma.example.com
 + /probe - endpoint to communicate with Prometheus
 + /ping - returns `pong`
 + /version - returns `build` and `commit`
++ /config - returns config with current tokens 
 
 
 #### Prometheus config (for this [example](./config-example.json))

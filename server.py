@@ -162,7 +162,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if cmd:
                 log['cmd'] = cmd
             if reply:
-                log['message'] = message
+                log['message'] = reply
             print(jsn.dumps(log, indent=2))
         return
 

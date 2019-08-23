@@ -162,7 +162,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if cmd:
                 log['cmd'] = cmd
             if reply:
-                log['reply'] = reply
+                log['message'] = message
             print(jsn.dumps(log, indent=2))
         return
 
@@ -173,6 +173,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         message = schema.copy()
 
         cmd, param = parse_request_line(self.requestline)
+
+        if not cmd:
+            message = {'message': 'Request not found'}
+            self.reply(message, code=404)
+            return
 
         if cmd == 'ping':
             message = {'message': 'Pong'}

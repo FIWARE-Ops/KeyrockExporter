@@ -1,0 +1,41 @@
+{
+  "endpoints": [
+    {
+      "target": "https://wilma.example.com",
+      "entities": [
+        {
+          "id": "TestID1",
+          "type": "test",
+          "service": "t_test",
+          "path": "/Test"
+        }
+      ],
+      "auth": {
+	    "keyrock": "https://keyrock.example.com",
+        "client_id": "",
+        "client_secret": "",
+        "username": "",
+        "password": ""
+      }
+    },
+    {
+      "target": "http://orion.example.com:1026",
+      "entities": [
+        {
+          "id": "TestID2",
+          "entity": "test123"
+        }
+      ]
+    },
+    {
+      "target": "http://wilma2.example.com:4444",
+      "auth": {
+	    "keyrock": "http://keyrock.example.com:3333",
+        "client_id": "",
+        "client_secret": "",
+        "username": "",
+        "password": ""
+      }
+    }
+  ]
+}

@@ -46,8 +46,8 @@ def request_token(target, sel):
                    'refresh_token': data[target]['refresh_token']}
 
     try:
-        resp = requests.post(url, auth=auth, data=payload, headers=headers, timeout=5)
-    except requests.exceptions.ConnectionError:
+        resp = requests.post(url, auth=auth, data=payload, headers=headers, timeout=timeout)
+    except socket.timeout:
         return False, "orion_failed_" + sel + "_token_connection_timeout"
 
     if resp.status_code == 200:
@@ -61,8 +61,8 @@ def request_token(target, sel):
 def validate_token(target):
     url = data[target]['keyrock'] + '/user?access_token=' + data[target]['access_token']
     try:
-        resp = requests.get(url, timeout=5)
-    except requests.exceptions.ConnectionError:
+        resp = requests.get(url, timeout=timeout)
+    except socket.timeout:
         return False, "orion_failed_validate_token_timeout"
 
     if resp.status_code in [200, 201]:
@@ -93,8 +93,8 @@ def check(target):
     url = trg + '/version'
 
     try:
-        resp = requests.get(url, headers=headers, timeout=5)
-    except requests.exceptions.ConnectionError:
+        resp = requests.get(url, headers=headers, timeout=timeout)
+    except socket.timeout:
         return False, "orion_failed_check_version_timeout"
 
     if not resp.status_code == 200:
@@ -120,8 +120,8 @@ def check(target):
                 headers['fiware-servicepath'] = data[target]['entities'][el]['path']
 
             try:
-                resp = requests.get(url, headers=headers, timeout=5)
-            except requests.exceptions.ConnectionError:
+                resp = requests.get(url, headers=headers, timeout=timeout)
+            except socket.timeout:
                 return False, "orion_failed_check_entity_timeout"
 
             if resp.status_code == 200:
@@ -246,12 +246,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.reply(message, cmd=cmd)
             return
 
-        else:
-            message = {'message': 'Hook not found', 'param': param}
-            self.reply(message, cmd=cmd, code=404)
-            return
-
-
+        message = {'message': 'Hook not found', 'param': param}
+        self.reply(message, cmd=cmd, code=404)
+        return
 
 
 class Thread(threading.Thread):
@@ -280,13 +277,15 @@ if __name__ == '__main__':
     parser.add_argument('--socks', dest='socks', default=3, help='threads to start (default: 3)',  action="store")
     parser.add_argument('--config', dest='config_path', default='/opt/config.json',
                         help='path to config file (default: /opt/config.json)',  action="store")
-
+    parser.add_argument('--timeout', dest='timeout', default=60,
+                        help='request timeout (default: 60)',  action="store")
     args = parser.parse_args()
 
     threads = args.threads
     socks = args.socks
     ip = args.ip
     port = args.port
+    timeout = args.timeout
     config_path = args.config_path
     version_path = os.path.split(os.path.abspath(__file__))[0] + '/version'
 

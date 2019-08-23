@@ -176,7 +176,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         if not cmd:
             message = {'message': 'Request not found'}
-            self.reply(message, code=404)
+            self.reply(message, code=400)
             return
 
         if cmd == 'ping':
@@ -243,11 +243,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
             end_time = time.time()
             message['orion_time_check'] = end_time - start_time
 
-        else:
-            message['orion_failed_wrong_target'] = 1
+            self.reply(message, cmd=cmd)
+            return
 
-        self.reply(message, cmd=cmd)
-        return
+        else:
+            message = {'message': 'Hook not found', 'param': param}
+            self.reply(message, cmd=cmd, code=404)
+            return
+
+
 
 
 class Thread(threading.Thread):

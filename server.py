@@ -158,6 +158,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.reply(message, cmd=cmd)
             return
 
+        if cmd == 'probe' and 'target' not in param:
+            message = {'message': 'Bad Request'}
+            self.reply(message, code=400)
+            return
+
         if cmd == 'probe' and 'target' in param:
             target = hash(param['target']) % ((sys.maxsize + 1) * 2)
             if target not in config:
@@ -226,14 +231,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header('content-type', 'text/plain')
         self.end_headers()
-        if cmd in ['ping', 'version']:
+        if cmd not in ['probe']:
             message = jsn.dumps(reply)
         else:
             message = ''
             for el in sorted(reply):
                 message = message + el + ' ' + str(reply[el]) + '\n'
 
-        self.wfile.write(bytes(message, 'utf8'))
+        try:
+            self.wfile.write(bytes(message, 'utf8'))
+        except BrokenPipeError:
+            reply = 'Broken pipe'
+            code = 500
+
         log = dict()
         if not silent:
             log['code'] = code
@@ -246,7 +256,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if cmd:
                 log['cmd'] = cmd
             if reply:
-                log['message'] = reply
+                if 'message' in reply:
+                    log['message'] = reply['message']
+                else:
+                    log['message'] = reply
             print(jsn.dumps(log, indent=2))
         return
 

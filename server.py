@@ -46,7 +46,7 @@ def request_token(target, sel):
                    'refresh_token': data[target]['refresh_token']}
 
     try:
-        resp = requests.post(url, auth=auth, data=payload, headers=headers, timeout=timeout)
+        resp = requests.post(url, auth=auth, data=payload, headers=headers, timeout=timeout_keyrock)
     except socket.timeout:
         return False, "orion_failed_" + sel + "_token_connection_timeout"
 
@@ -61,7 +61,7 @@ def request_token(target, sel):
 def validate_token(target):
     url = data[target]['keyrock'] + '/user?access_token=' + data[target]['access_token']
     try:
-        resp = requests.get(url, timeout=timeout)
+        resp = requests.get(url, timeout=timeout_keyrock)
     except socket.timeout:
         return False, "orion_failed_validate_token_timeout"
 
@@ -93,7 +93,7 @@ def check(target):
     url = trg + '/version'
 
     try:
-        resp = requests.get(url, headers=headers, timeout=timeout)
+        resp = requests.get(url, headers=headers, timeout=data[target]['timeout'])
     except socket.timeout:
         return False, "orion_failed_check_version_timeout"
 
@@ -120,7 +120,7 @@ def check(target):
                 headers['fiware-servicepath'] = data[target]['entities'][el]['path']
 
             try:
-                resp = requests.get(url, headers=headers, timeout=timeout)
+                resp = requests.get(url, headers=headers, timeout=data[target]['timeout'])
             except socket.timeout:
                 return False, "orion_failed_check_entity_timeout"
 
@@ -277,7 +277,9 @@ if __name__ == '__main__':
     parser.add_argument('--socks', dest='socks', default=3, help='threads to start (default: 3)',  action="store")
     parser.add_argument('--config', dest='config_path', default='/opt/config.json',
                         help='path to config file (default: /opt/config.json)',  action="store")
-    parser.add_argument('--timeout', dest='timeout', default=60,
+    parser.add_argument('--timeout_keyrock', dest='timeout_keyrock', default=30,
+                        help='request timeout (default: 30)',  action="store")
+    parser.add_argument('--timeout_orion', dest='timeout_orion', default=60,
                         help='request timeout (default: 60)',  action="store")
     args = parser.parse_args()
 
@@ -285,7 +287,8 @@ if __name__ == '__main__':
     socks = args.socks
     ip = args.ip
     port = args.port
-    timeout = args.timeout
+    timeout_keyrock = args.timeout_keyrock
+    timeout_orion = args.timeout_orion
     config_path = args.config_path
     version_path = os.path.split(os.path.abspath(__file__))[0] + '/version'
 
@@ -323,6 +326,11 @@ if __name__ == '__main__':
             data[i] = dict()
 
             data[i]["target"] = endpoint["target"]
+
+            if "timeout" not in endpoint:
+                data[i]["timeout"] = timeout_orion
+            else:
+                data[i]["timeout"] = endpoint["timeout"]
 
             if 'entities' in endpoint:
                 data[i]['entities'] = dict()

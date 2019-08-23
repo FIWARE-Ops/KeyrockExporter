@@ -10,6 +10,7 @@
           "path": "/Test"
         }
       ],
+      "timeout": 20,
       "auth": {
 	    "keyrock": "https://keyrock.example.com",
         "client_id": "",

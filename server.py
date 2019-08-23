@@ -170,11 +170,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
 
         if cmd == 'config':
-            if param['token'] == config_token:
-                message = config
-                self.reply(message, cmd=cmd)
-            else:
-                self.reply(config, cmd=cmd, code=401)
+            status = False
+            if 'token' in param:
+                if param['token'] == config_token:
+                    self.reply(config, cmd=cmd)
+                    status = True
+            if not status:
+                message = {'message': 'Unauthorized'}
+                self.reply(message, cmd=cmd, code=401)
             return
 
         if cmd == 'probe' and 'target' in param:
